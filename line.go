@@ -6,23 +6,28 @@ import (
 )
 
 type Line interface {
-	Print(format string, a ...interface{})
+	Set(format string, a ...interface{})
+	Get() string
 }
 
 type line struct {
 	mutex *sync.Mutex
-	str   string
+	value string
 }
 
-func newLine(mutex *sync.Mutex) *line {
+func newLine(mutex *sync.Mutex) Line {
 	return &line{
 		mutex: mutex,
 	}
 }
 
-func (l *line) Print(format string, a ...interface{}) {
+func (l *line) Set(format string, a ...interface{}) {
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
 
-	l.str = fmt.Sprintf(format, a...)
+	l.value = fmt.Sprintf(format, a...)
+}
+
+func (l *line) Get() string {
+	return l.value
 }

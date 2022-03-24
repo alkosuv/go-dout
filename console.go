@@ -21,14 +21,15 @@ type Console interface {
 type console struct {
 	mutex *sync.Mutex
 
-	out   io.Writer
-	lines []*line
+	out           io.Writer
+	lines         []Line
+	lastLineCount int
 }
 
 func NewConsole() Console {
 	c := new(console)
 	c.out = io.Writer(os.Stdout)
-	c.lines = make([]*line, 0)
+	c.lines = make([]Line, 0)
 	c.mutex = new(sync.Mutex)
 
 	go c.loop()
@@ -61,20 +62,23 @@ func (c *console) output() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	if len(c.lines) == 0 {
+	count := len(c.lines)
+	if count == 0 {
 		return
 	}
 
-	c.clearLines()
+	c.clearLines(c.lastLineCount)
 	var buffer bytes.Buffer
 
 	for _, l := range c.lines {
-		buffer.WriteString(l.str + "\n")
+		buffer.WriteString(l.Get() + "\r\n")
 	}
 	c.out.Write(buffer.Bytes())
+
+	c.lastLineCount = count
 }
 
-func (c *console) clearLines() {
-	clear := fmt.Sprintf("\033[%dA\033[2K", len(c.lines))
+func (c *console) clearLines(count int) {
+	clear := fmt.Sprintf("\033[%dA\033[2K", count)
 	fmt.Fprint(c.out, clear)
 }

@@ -15,10 +15,11 @@ const (
 
 type Console interface {
 	NewLine() Line
+	ClearTerminal()
 }
 
 type console struct {
-	sync.Mutex
+	mutex *sync.Mutex
 
 	out   io.Writer
 	lines []*line
@@ -27,19 +28,25 @@ type console struct {
 func NewConsole() Console {
 	c := new(console)
 	c.out = io.Writer(os.Stdout)
-
 	c.lines = make([]*line, 0)
+	c.mutex = new(sync.Mutex)
 
-	c.clear()
 	go c.loop()
 
 	return c
 }
 
 func (c *console) NewLine() Line {
-	l := new(line)
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	l := newLine(c.mutex)
 	c.lines = append(c.lines, l)
 	return l
+}
+
+func (c *console) ClearTerminal() {
+	fmt.Fprint(c.out, "\033[H\033[2J")
 }
 
 func (c *console) loop() {
@@ -51,8 +58,8 @@ func (c *console) loop() {
 }
 
 func (c *console) output() {
-	c.Lock()
-	defer c.Unlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	if len(c.lines) == 0 {
 		return
@@ -65,10 +72,6 @@ func (c *console) output() {
 		buffer.WriteString(l.str + "\n")
 	}
 	c.out.Write(buffer.Bytes())
-}
-
-func (c *console) clear() {
-	fmt.Fprint(c.out, "\033[H\033[2J")
 }
 
 func (c *console) clearLines() {

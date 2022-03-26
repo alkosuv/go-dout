@@ -55,6 +55,7 @@ func newView() *view {
 	v.out = io.Writer(os.Stdout)
 	v.mutex = new(sync.Mutex)
 	v.node = make([]get, 0)
+	v.lastLineCount = -1
 
 	go v.loop()
 

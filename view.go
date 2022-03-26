@@ -13,6 +13,9 @@ const (
 	refresh = time.Millisecond * 10
 )
 
+var once sync.Once
+var viewinstans *view
+
 type get interface {
 	Get() string
 }
@@ -21,8 +24,9 @@ type View interface {
 	NewLine() *Line
 	NewTitle(format string, a ...interface{})
 	NewProgresBar() *ProgresBar
+	Print(format string, a ...interface{})
+	ResetView()
 	ClearTerminal()
-	Complete()
 }
 
 type view struct {
@@ -31,16 +35,26 @@ type view struct {
 
 	node          []get
 	lastLineCount int
-
-	complete chan struct{}
 }
 
-func NewView() View {
+func GetView() View {
+	once.Do(func() {
+		viewinstans = newView()
+	})
+
+	return viewinstans
+}
+
+func (v *view) ResetView() {
+	v.node = make([]get, 0)
+	v.lastLineCount = -1
+}
+
+func newView() *view {
 	v := new(view)
 	v.out = io.Writer(os.Stdout)
 	v.mutex = new(sync.Mutex)
 	v.node = make([]get, 0)
-	v.complete = make(chan struct{})
 
 	go v.loop()
 
@@ -77,28 +91,21 @@ func (v *view) NewProgresBar() *ProgresBar {
 	return pb
 }
 
-func (v *view) ClearTerminal() {
-	fmt.Fprint(v.out, "\033[H\033[2J")
+func (v *view) Print(format string, a ...interface{}) {
+	l := v.NewLine()
+	l.Set(format, a...)
 }
 
-func (v *view) Complete() {
-	v.complete <- struct{}{}
+func (v *view) ClearTerminal() {
+	fmt.Fprint(v.out, "\033[H\033[2J")
 }
 
 func (v *view) loop() {
 	ticker := time.NewTicker(refresh)
 
-	for {
-		select {
-		case <-ticker.C:
-			v.output()
-		case <-v.complete:
-			goto brk
-		}
+	for range ticker.C {
+		v.output()
 	}
-
-brk:
-	return
 }
 
 func (v *view) output() {

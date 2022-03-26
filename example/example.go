@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	v := console.NewView()
+	v := console.GetView()
 
 	line0 := v.NewLine()
 	pb0 := v.NewProgresBar()
@@ -23,6 +23,6 @@ func main() {
 	}
 
 	v.NewLine().Set("Completed!")
+	v.Print("Exit")
 	time.Sleep(time.Second * 1)
-	v.Complete()
 }

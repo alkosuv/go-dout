@@ -19,9 +19,10 @@ func main() {
 		line0.Set("number of iterations: %d", i)
 		pb0.Set("downloading file.txt", i, 100)
 		pb1.Set("downloading count files", i*12, 100*12)
-		time.Sleep(time.Millisecond * 50)
+		time.Sleep(time.Millisecond * 10)
 	}
 
 	v.NewLine().Set("Completed!")
 	time.Sleep(time.Second * 1)
+	v.Complete()
 }

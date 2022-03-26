@@ -3,19 +3,23 @@ package console
 import (
 	"fmt"
 	"strings"
+	"sync"
 )
 
 type Line struct {
+	mutex *sync.Mutex
 	value string
 }
 
-func newLine() *Line {
-	return &Line{}
+func newLine(mutex *sync.Mutex) *Line {
+	return &Line{
+		mutex: mutex,
+	}
 }
 
 func (l *Line) Set(format string, a ...interface{}) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	l.mutex.Lock()
+	defer l.mutex.Unlock()
 
 	l.value = fmt.Sprintf(format, a...)
 }
@@ -25,16 +29,19 @@ func (l *Line) Get() string {
 }
 
 type ProgresBar struct {
+	mutex *sync.Mutex
 	value string
 }
 
-func newProgresBar() *ProgresBar {
-	return &ProgresBar{}
+func newProgresBar(mutex *sync.Mutex) *ProgresBar {
+	return &ProgresBar{
+		mutex: mutex,
+	}
 }
 
 func (p *ProgresBar) Set(desctioption string, current, max int) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 
 	p.value = genProgresBar(desctioption, current, max)
 }

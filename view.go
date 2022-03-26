@@ -13,8 +13,6 @@ const (
 	refresh = time.Millisecond * 10
 )
 
-var mutex = new(sync.Mutex)
-
 type get interface {
 	Get() string
 }
@@ -24,18 +22,25 @@ type View interface {
 	NewTitle(format string, a ...interface{})
 	NewProgresBar() *ProgresBar
 	ClearTerminal()
+	Complete()
 }
 
 type view struct {
-	out           io.Writer
+	out   io.Writer
+	mutex *sync.Mutex
+
 	node          []get
 	lastLineCount int
+
+	complete chan struct{}
 }
 
 func NewView() View {
 	v := new(view)
 	v.out = io.Writer(os.Stdout)
+	v.mutex = new(sync.Mutex)
 	v.node = make([]get, 0)
+	v.complete = make(chan struct{})
 
 	go v.loop()
 
@@ -43,50 +48,62 @@ func NewView() View {
 }
 
 func (v *view) NewLine() *Line {
-	mutex.Lock()
-	defer mutex.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
-	l := newLine()
+	l := newLine(v.mutex)
 	v.node = append(v.node, l)
 	return l
 }
 
 func (v *view) NewTitle(format string, a ...interface{}) {
-	mutex.Lock()
+	v.mutex.Lock()
 
-	l := newLine()
+	l := newLine(v.mutex)
 	v.node = append([]get{l}, v.node...)
 
-	mutex.Unlock()
+	v.mutex.Unlock()
 
 	l.Set(format, a...)
 }
 
 func (v *view) NewProgresBar() *ProgresBar {
-	mutex.Lock()
-	defer mutex.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
-	pb := newProgresBar()
+	pb := newProgresBar(v.mutex)
 	v.node = append(v.node, pb)
 
 	return pb
 }
 
-func (c *view) ClearTerminal() {
-	fmt.Fprint(c.out, "\033[H\033[2J")
+func (v *view) ClearTerminal() {
+	fmt.Fprint(v.out, "\033[H\033[2J")
+}
+
+func (v *view) Complete() {
+	v.complete <- struct{}{}
 }
 
 func (v *view) loop() {
 	ticker := time.NewTicker(refresh)
 
-	for range ticker.C {
-		v.output()
+	for {
+		select {
+		case <-ticker.C:
+			v.output()
+		case <-v.complete:
+			goto brk
+		}
 	}
+
+brk:
+	return
 }
 
 func (v *view) output() {
-	mutex.Lock()
-	defer mutex.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
 	count := len(v.node)
 	if count == 0 {

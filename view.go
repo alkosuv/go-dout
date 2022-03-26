@@ -93,8 +93,7 @@ func (v *view) NewProgresBar() *ProgresBar {
 }
 
 func (v *view) Print(format string, a ...interface{}) {
-	l := v.NewLine()
-	l.Set(format, a...)
+	v.NewLine().Set(format, a...)
 }
 
 func (v *view) ClearTerminal() {

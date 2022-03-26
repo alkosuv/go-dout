@@ -7,10 +7,13 @@ import (
 )
 
 func main() {
-	c := console.NewView()
-	line0 := c.NewLine()
-	pb0 := c.NewProgresBar()
-	pb1 := c.NewProgresBar()
+	v := console.NewView()
+
+	line0 := v.NewLine()
+	pb0 := v.NewProgresBar()
+	pb1 := v.NewProgresBar()
+
+	v.NewTitle("\t\t *** some title *** ")
 
 	for i := 0; i <= 100; i++ {
 		line0.Set("number of iterations: %d", i)
@@ -19,7 +22,6 @@ func main() {
 		time.Sleep(time.Millisecond * 50)
 	}
 
-	line2 := c.NewLine()
-	line2.Set("Completed!")
+	v.NewLine().Set("Completed!")
 	time.Sleep(time.Second * 1)
 }

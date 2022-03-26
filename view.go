@@ -21,6 +21,7 @@ type get interface {
 
 type View interface {
 	NewLine() *Line
+	NewTitle(format string, a ...interface{})
 	NewProgresBar() *ProgresBar
 	ClearTerminal()
 }
@@ -48,6 +49,17 @@ func (v *view) NewLine() *Line {
 	l := newLine()
 	v.node = append(v.node, l)
 	return l
+}
+
+func (v *view) NewTitle(format string, a ...interface{}) {
+	mutex.Lock()
+
+	l := newLine()
+	v.node = append([]get{l}, v.node...)
+
+	mutex.Unlock()
+
+	l.Set(format, a...)
 }
 
 func (v *view) NewProgresBar() *ProgresBar {

@@ -31,7 +31,7 @@ type view struct {
 	lastLineCount int
 }
 
-func NewConsole() View {
+func NewView() View {
 	v := new(view)
 	v.out = io.Writer(os.Stdout)
 	v.node = make([]get, 0)

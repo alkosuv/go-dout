@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	c := console.NewConsole()
+	c := console.NewView()
 	line0 := c.NewLine()
 	pb0 := c.NewProgresBar()
 	pb1 := c.NewProgresBar()

@@ -13,72 +13,86 @@ const (
 	refresh = time.Millisecond * 10
 )
 
-type Console interface {
-	NewLine() Line
+var mutex = new(sync.Mutex)
+
+type get interface {
+	Get() string
+}
+
+type View interface {
+	NewLine() *Line
+	NewProgresBar() *ProgresBar
 	ClearTerminal()
 }
 
-type console struct {
-	mutex *sync.Mutex
-
+type view struct {
 	out           io.Writer
-	lines         []Line
+	node          []get
 	lastLineCount int
 }
 
-func NewConsole() Console {
-	c := new(console)
-	c.out = io.Writer(os.Stdout)
-	c.lines = make([]Line, 0)
-	c.mutex = new(sync.Mutex)
+func NewConsole() View {
+	v := new(view)
+	v.out = io.Writer(os.Stdout)
+	v.node = make([]get, 0)
 
-	go c.loop()
+	go v.loop()
 
-	return c
+	return v
 }
 
-func (c *console) NewLine() Line {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+func (v *view) NewLine() *Line {
+	mutex.Lock()
+	defer mutex.Unlock()
 
-	l := newLine(c.mutex)
-	c.lines = append(c.lines, l)
+	l := newLine()
+	v.node = append(v.node, l)
 	return l
 }
 
-func (c *console) ClearTerminal() {
+func (v *view) NewProgresBar() *ProgresBar {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	pb := newProgresBar()
+	v.node = append(v.node, pb)
+
+	return pb
+}
+
+func (c *view) ClearTerminal() {
 	fmt.Fprint(c.out, "\033[H\033[2J")
 }
 
-func (c *console) loop() {
+func (v *view) loop() {
 	ticker := time.NewTicker(refresh)
 
 	for range ticker.C {
-		c.output()
+		v.output()
 	}
 }
 
-func (c *console) output() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+func (v *view) output() {
+	mutex.Lock()
+	defer mutex.Unlock()
 
-	count := len(c.lines)
+	count := len(v.node)
 	if count == 0 {
 		return
 	}
 
-	c.clearLines(c.lastLineCount)
+	v.clearLines(v.lastLineCount)
 	var buffer bytes.Buffer
 
-	for _, l := range c.lines {
-		buffer.WriteString(l.Get() + "\r\n")
+	for _, n := range v.node {
+		buffer.WriteString(n.Get() + "\n")
 	}
-	c.out.Write(buffer.Bytes())
+	v.out.Write(buffer.Bytes())
 
-	c.lastLineCount = count
+	v.lastLineCount = count
 }
 
-func (c *console) clearLines(count int) {
+func (v *view) clearLines(count int) {
 	clear := fmt.Sprintf("\033[%dA\033[2K", count)
-	fmt.Fprint(c.out, clear)
+	fmt.Fprint(v.out, clear)
 }

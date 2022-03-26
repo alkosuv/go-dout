@@ -9,12 +9,14 @@ import (
 func main() {
 	c := console.NewConsole()
 	line0 := c.NewLine()
-	line1 := c.NewLine()
+	pb0 := c.NewProgresBar()
+	pb1 := c.NewProgresBar()
 
 	for i := 0; i <= 100; i++ {
-		line0.Set("downloading File 0 - %d %%", i)
-		line1.Set("downloading File 1 - %d %%", i)
-		time.Sleep(time.Millisecond * 100)
+		line0.Set("number of iterations: %d", i)
+		pb0.Set("downloading file.txt", i, 100)
+		pb1.Set("downloading count files", i*12, 100*12)
+		time.Sleep(time.Millisecond * 50)
 	}
 
 	line2 := c.NewLine()

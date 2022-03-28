@@ -3,11 +3,11 @@ package main
 import (
 	"time"
 
-	"github.com/gen95mis/go-console"
+	"github.com/gen95mis/go-dout"
 )
 
 func main() {
-	v := console.GetView()
+	v := dout.GetView()
 
 	line0 := v.NewLine()
 	pb0 := v.NewProgressBar()

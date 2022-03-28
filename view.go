@@ -13,6 +13,7 @@ const (
 	refresh = time.Millisecond * 10
 )
 
+var mutex sync.Mutex
 var once sync.Once
 var viewinstans *view
 
@@ -30,13 +31,12 @@ type View interface {
 }
 
 type view struct {
-	out   io.Writer
-	mutex *sync.Mutex
-
+	out           io.Writer
 	node          []get
 	lastLineCount int
 }
 
+// GetView returns View
 func GetView() View {
 	once.Do(func() {
 		viewinstans = newView()
@@ -45,6 +45,7 @@ func GetView() View {
 	return viewinstans
 }
 
+// ResetView reset view
 func (v *view) ResetView() {
 	v.node = make([]get, 0)
 	v.lastLineCount = -1
@@ -53,7 +54,6 @@ func (v *view) ResetView() {
 func newView() *view {
 	v := new(view)
 	v.out = io.Writer(os.Stdout)
-	v.mutex = new(sync.Mutex)
 	v.node = make([]get, 0)
 	v.lastLineCount = -1
 
@@ -62,40 +62,45 @@ func newView() *view {
 	return v
 }
 
+// NewLine create new Line
 func (v *view) NewLine() *Line {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
-	l := newLine(v.mutex)
+	l := newLine()
 	v.node = append(v.node, l)
 	return l
 }
 
+// NewTitle create new Title
 func (v *view) NewTitle(format string, a ...interface{}) {
-	v.mutex.Lock()
+	mutex.Lock()
 
-	l := newLine(v.mutex)
+	l := newLine()
 	v.node = append([]get{l}, v.node...)
 
-	v.mutex.Unlock()
+	mutex.Unlock()
 
 	l.Set(format, a...)
 }
 
+// NewProgressBar create new ProgressBar
 func (v *view) NewProgressBar() *ProgressBar {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
-	pb := newProgressBar(v.mutex)
+	pb := newProgressBar()
 	v.node = append(v.node, pb)
 
 	return pb
 }
 
+// Print formats according to a format specifier and writes to standard output.
 func (v *view) Print(format string, a ...interface{}) {
 	v.NewLine().Set(format, a...)
 }
 
+// ClearTerminal clears all information from the terminal
 func (v *view) ClearTerminal() {
 	fmt.Fprint(v.out, "\033[H\033[2J")
 }
@@ -109,8 +114,8 @@ func (v *view) loop() {
 }
 
 func (v *view) output() {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	count := len(v.node)
 	if count == 0 {

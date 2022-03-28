@@ -3,49 +3,46 @@ package dout
 import (
 	"fmt"
 	"strings"
-	"sync"
 )
 
 type Line struct {
-	mutex *sync.Mutex
 	value string
 }
 
-func newLine(mutex *sync.Mutex) *Line {
-	return &Line{
-		mutex: mutex,
-	}
+func newLine() *Line {
+	return &Line{}
 }
 
+// Set formats according to a format specifier and writes to standard output.
 func (l *Line) Set(format string, a ...interface{}) {
-	l.mutex.Lock()
-	defer l.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	l.value = fmt.Sprintf(format, a...)
 }
 
+// Get returns a Line value
 func (l *Line) Get() string {
 	return l.value
 }
 
 type ProgressBar struct {
-	mutex *sync.Mutex
 	value string
 }
 
-func newProgressBar(mutex *sync.Mutex) *ProgressBar {
-	return &ProgressBar{
-		mutex: mutex,
-	}
+func newProgressBar() *ProgressBar {
+	return &ProgressBar{}
 }
 
+// Set formats according to a format specifier and writes to standard output.
 func (p *ProgressBar) Set(description string, current, max int) {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	p.value = genProgresBar(description, current, max)
 }
 
+// Get returns a ProgressBar value
 func (p *ProgressBar) Get() string {
 	return p.value
 }

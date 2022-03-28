@@ -10,8 +10,8 @@ func main() {
 	v := console.GetView()
 
 	line0 := v.NewLine()
-	pb0 := v.NewProgresBar()
-	pb1 := v.NewProgresBar()
+	pb0 := v.NewProgressBar()
+	pb1 := v.NewProgressBar()
 
 	v.NewTitle("\t\t *** some title *** ")
 

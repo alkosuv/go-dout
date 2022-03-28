@@ -28,41 +28,41 @@ func (l *Line) Get() string {
 	return l.value
 }
 
-type ProgresBar struct {
+type ProgressBar struct {
 	mutex *sync.Mutex
 	value string
 }
 
-func newProgresBar(mutex *sync.Mutex) *ProgresBar {
-	return &ProgresBar{
+func newProgressBar(mutex *sync.Mutex) *ProgressBar {
+	return &ProgressBar{
 		mutex: mutex,
 	}
 }
 
-func (p *ProgresBar) Set(desctioption string, current, max int) {
+func (p *ProgressBar) Set(description string, current, max int) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	p.value = genProgresBar(desctioption, current, max)
+	p.value = genProgresBar(description, current, max)
 }
 
-func (p *ProgresBar) Get() string {
+func (p *ProgressBar) Get() string {
 	return p.value
 }
 
-func genProgresBar(desctioption string, carrent, max int) string {
-	const countLineProces int = 25
+func genProgresBar(description string, carrent, max int) string {
+	const countLineProcess int = 25
 
 	persent := float32(carrent) / float32(max) * 100
 	count := 0
 	if persent != 0 {
-		count = int(persent) * countLineProces / (100)
+		count = int(persent) * countLineProcess / (100)
 	}
 
 	str1 := strings.Repeat("#", count)
-	str2 := strings.Repeat("*", countLineProces-count)
+	str2 := strings.Repeat("*", countLineProcess-count)
 
-	result := fmt.Sprintf("%s [%s%s] (%d/%d)", desctioption, str1, str2, carrent, max)
+	result := fmt.Sprintf("%s [%s%s] (%d/%d)", description, str1, str2, carrent, max)
 
 	return result
 }

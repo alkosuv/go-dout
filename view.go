@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -25,7 +26,9 @@ type View interface {
 	NewLine() *Line
 	NewTitle(format string, a ...interface{})
 	NewProgressBar() *ProgressBar
-	Print(format string, a ...interface{})
+	Print(str string)
+	Printf(format string, a ...interface{})
+	Println(str string)
 	ResetView()
 	ClearTerminal()
 }
@@ -81,6 +84,7 @@ func (v *view) NewTitle(format string, a ...interface{}) {
 
 	mutex.Unlock()
 
+	format += "\n"
 	l.Set(format, a...)
 }
 
@@ -95,9 +99,19 @@ func (v *view) NewProgressBar() *ProgressBar {
 	return pb
 }
 
+// Print formats using the default formats for its operands and writes to standard output.
+func (v *view) Print(str string) {
+	v.NewLine().Set(str)
+}
+
 // Print formats according to a format specifier and writes to standard output.
-func (v *view) Print(format string, a ...interface{}) {
+func (v *view) Printf(format string, a ...interface{}) {
 	v.NewLine().Set(format, a...)
+}
+
+// Println formats using the default formats for its operands and writes to standard outpu and newline is appended.
+func (v *view) Println(str string) {
+	v.NewLine().Set(str + "\n")
 }
 
 // ClearTerminal clears all information from the terminal
@@ -117,16 +131,14 @@ func (v *view) output() {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	count := len(v.node)
-	if count == 0 {
-		return
-	}
-
 	v.clearLines(v.lastLineCount)
 	var buffer bytes.Buffer
 
+	count := 0
 	for _, n := range v.node {
-		buffer.WriteString(n.Get() + "\n")
+		str := n.Get()
+		count += strings.Count(str, "\n")
+		buffer.WriteString(n.Get())
 	}
 	v.out.Write(buffer.Bytes())
 

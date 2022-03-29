@@ -16,13 +16,13 @@ func main() {
 	v.NewTitle("\t\t *** some title *** ")
 
 	for i := 0; i <= 100; i++ {
-		line0.Set("number of iterations: %d", i)
+		line0.Set("number of iterations: %d\n", i)
 		pb0.Set("downloading file.txt", i, 100)
 		pb1.Set("downloading count files", i*12, 100*12)
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	v.NewLine().Set("Completed!")
-	v.Print("Exit")
+	v.Print("Completed! ")
+	v.Println("Exit!")
 	time.Sleep(time.Second * 1)
 }

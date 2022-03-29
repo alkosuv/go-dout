@@ -59,7 +59,7 @@ func genProgresBar(description string, carrent, max int) string {
 	str1 := strings.Repeat("#", count)
 	str2 := strings.Repeat("*", countLineProcess-count)
 
-	result := fmt.Sprintf("%s [%s%s] (%d/%d)", description, str1, str2, carrent, max)
+	result := fmt.Sprintf("%s [%s%s] (%d/%d)\n", description, str1, str2, carrent, max)
 
 	return result
 }

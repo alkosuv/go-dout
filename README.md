@@ -1,7 +1,8 @@
 # go-dout
 
-`go-dout` provides the ability to dynamically output information to the console. The packge works on macos and linux. 
+`go-dout` provides the ability to dynamically output information to the console. The packge works on macos and linux.
 
+When using the `go-dout` package, you should not use other ways to output information to the console. This can lead to erratic behavior.
 
 ## Install package
 
@@ -54,7 +55,7 @@ Print data to console. Similar to fmt.Printf
 
 ```
 v := dout.GetView()
-v.Print("Exit")
+v.Print("Exit\n")
 ```
 
 Bad practice!!! Print() preferred v.NewLine().Set()

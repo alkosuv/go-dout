@@ -29,6 +29,7 @@ An example of usage can be found [here](https://github.com/gen95mis/go-dout/blob
 
 
 ## Typical using ProgressBar
+If the value in NewProgressBar less than or equal 0, then the default countLineProcess is set to 25.
 
 ```
 	v := dout.GetView()

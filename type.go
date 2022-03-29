@@ -27,11 +27,14 @@ func (l *Line) Get() string {
 }
 
 type ProgressBar struct {
-	value string
+	countLineProcess int
+	value            string
 }
 
-func newProgressBar() *ProgressBar {
-	return &ProgressBar{}
+func newProgressBar(countLineProcess int) *ProgressBar {
+	return &ProgressBar{
+		countLineProcess: countLineProcess,
+	}
 }
 
 // Set formats according to a format specifier and writes to standard output.
@@ -39,7 +42,7 @@ func (p *ProgressBar) Set(description string, current, max int) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	p.value = genProgresBar(description, current, max)
+	p.value = genProgresBar(description, current, max, p.countLineProcess)
 }
 
 // Get returns a ProgressBar value
@@ -47,9 +50,7 @@ func (p *ProgressBar) Get() string {
 	return p.value
 }
 
-func genProgresBar(description string, carrent, max int) string {
-	const countLineProcess int = 25
-
+func genProgresBar(description string, carrent, max, countLineProcess int) string {
 	persent := float32(carrent) / float32(max) * 100
 	count := 0
 	if persent != 0 {

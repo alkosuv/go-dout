@@ -25,7 +25,7 @@ type get interface {
 type View interface {
 	NewLine() *Line
 	NewTitle(format string, a ...interface{})
-	NewProgressBar() *ProgressBar
+	NewProgressBar(countLineProcess int) *ProgressBar
 	Print(str string)
 	Printf(format string, a ...interface{})
 	Println(str string)
@@ -88,12 +88,16 @@ func (v *view) NewTitle(format string, a ...interface{}) {
 	l.Set(format, a...)
 }
 
-// NewProgressBar create new ProgressBar
-func (v *view) NewProgressBar() *ProgressBar {
+// NewProgressBar create new ProgressBar. If the countLineProcess is 0, then the default countLineProcess is set to 25.
+func (v *view) NewProgressBar(countLineProcess int) *ProgressBar {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	pb := newProgressBar()
+	if countLineProcess == 0 {
+		countLineProcess = 25
+	}
+
+	pb := newProgressBar(countLineProcess)
 	v.node = append(v.node, pb)
 
 	return pb

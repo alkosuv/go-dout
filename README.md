@@ -32,7 +32,7 @@ An example of usage can be found [here](https://github.com/gen95mis/go-dout/blob
 
 ```
 	v := dout.GetView()
-	pb := v.NewProgressBar()
+	pb := v.NewProgressBar(50)
 	for i := 0; i <= 100; i++ {
 		pb1.Set("downloading file.txt", i, 100)
 	}

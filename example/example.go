@@ -10,7 +10,7 @@ func main() {
 	v := dout.GetView()
 
 	line0 := v.NewLine()
-	pb0 := v.NewProgressBar(-10)
+	pb0 := v.NewProgressBar(10)
 	pb1 := v.NewProgressBar(50)
 
 	v.NewTitle("\t\t *** some title *** ")

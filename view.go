@@ -88,12 +88,12 @@ func (v *view) NewTitle(format string, a ...interface{}) {
 	l.Set(format, a...)
 }
 
-// NewProgressBar create new ProgressBar. If the countLineProcess is 0, then the default countLineProcess is set to 25.
+// NewProgressBar create new ProgressBar. If the countLineProcess less than or equal 0, then the default countLineProcess is set to 25.
 func (v *view) NewProgressBar(countLineProcess int) *ProgressBar {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	if countLineProcess == 0 {
+	if countLineProcess <= 0 {
 		countLineProcess = 25
 	}
 

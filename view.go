@@ -146,7 +146,11 @@ func (v *view) output() {
 	}
 	v.out.Write(buffer.Bytes())
 
-	v.lastLineCount = count
+	if count == 0 {
+		v.lastLineCount = -1
+	} else {
+		v.lastLineCount = count
+	}
 }
 
 func (v *view) clearLines(count int) {

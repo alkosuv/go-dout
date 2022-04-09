@@ -37,7 +37,7 @@ type View interface {
 
 type view struct {
 	out           io.Writer
-	node          []get
+	lines         []get
 	lastLineCount int
 }
 
@@ -52,14 +52,14 @@ func GetView() View {
 
 // ResetView reset view
 func (v *view) ResetView() {
-	v.node = make([]get, 0)
+	v.lines = make([]get, 0)
 	v.lastLineCount = -1
 }
 
 func newView() *view {
 	v := new(view)
 	v.out = io.Writer(os.Stdout)
-	v.node = make([]get, 0)
+	v.lines = make([]get, 0)
 	v.lastLineCount = -1
 
 	go v.loop()
@@ -73,7 +73,7 @@ func (v *view) NewLine() *Line {
 	defer mutex.Unlock()
 
 	l := newLine()
-	v.node = append(v.node, l)
+	v.lines = append(v.lines, l)
 	return l
 }
 
@@ -82,7 +82,7 @@ func (v *view) NewTitle(format string, a ...any) {
 	mutex.Lock()
 
 	l := newLine()
-	v.node = append([]get{l}, v.node...)
+	v.lines = append([]get{l}, v.lines...)
 
 	mutex.Unlock()
 
@@ -100,7 +100,7 @@ func (v *view) NewProgressBar(countLineProcess int) *ProgressBar {
 	}
 
 	pb := newProgressBar(countLineProcess)
-	v.node = append(v.node, pb)
+	v.lines = append(v.lines, pb)
 
 	return pb
 }
@@ -141,7 +141,7 @@ func (v *view) output() {
 	var buffer bytes.Buffer
 
 	count := 0
-	for _, n := range v.node {
+	for _, n := range v.lines {
 		str := n.Get()
 		count += strings.Count(str, "\n")
 		buffer.WriteString(n.Get())

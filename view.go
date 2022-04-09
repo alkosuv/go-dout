@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strings"
 	"sync"
@@ -90,14 +91,12 @@ func (v *view) NewTitle(format string, a ...any) {
 	l.Set(format, a...)
 }
 
-// NewProgressBar create new ProgressBar. If the countLineProcess less than or equal 0, then the default countLineProcess is set to 25.
+// NewProgressBar create new ProgressBar. Negative countLineProcess values ​​will be treated as positive.
 func (v *view) NewProgressBar(countLineProcess int) *ProgressBar {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	if countLineProcess <= 0 {
-		countLineProcess = 25
-	}
+	countLineProcess = int(math.Abs(float64(countLineProcess)))
 
 	pb := newProgressBar(countLineProcess)
 	v.lines = append(v.lines, pb)

@@ -3,6 +3,7 @@ package dout
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type Line struct {
@@ -29,6 +30,7 @@ func (l *Line) Get() string {
 type ProgressBar struct {
 	countLineProcess int
 	value            string
+	timeStart        *time.Time
 }
 
 func newProgressBar(countLineProcess int) *ProgressBar {
@@ -37,12 +39,20 @@ func newProgressBar(countLineProcess int) *ProgressBar {
 	}
 }
 
+func newProgressBarWithTime(countLineProcess int) *ProgressBar {
+	t := time.Now()
+	return &ProgressBar{
+		countLineProcess: countLineProcess,
+		timeStart:        &t,
+	}
+}
+
 // Set formats according to a format specifier and writes to standard output.
 func (p *ProgressBar) Set(description string, current, max int) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	p.value = genProgresBar(description, current, max, p.countLineProcess)
+	p.value = p.genProgresBar(description, current, max, p.countLineProcess)
 }
 
 // Get returns a ProgressBar value
@@ -50,7 +60,7 @@ func (p *ProgressBar) Get() string {
 	return p.value
 }
 
-func genProgresBar(description string, carrent, max, countLineProcess int) string {
+func (p *ProgressBar) genProgresBar(description string, carrent, max, countLineProcess int) string {
 	persent := float32(carrent) / float32(max) * 100
 	count := 0
 	if persent != 0 {
@@ -60,7 +70,13 @@ func genProgresBar(description string, carrent, max, countLineProcess int) strin
 	str1 := strings.Repeat("#", count)
 	str2 := strings.Repeat("*", countLineProcess-count)
 
-	result := fmt.Sprintf("%s [%s%s] (%d/%d)\n", description, str1, str2, carrent, max)
+	result := ""
+	if p.timeStart == nil {
+		result = fmt.Sprintf("%s [%s%s] (%d/%d)\n", description, str1, str2, carrent, max)
+	} else {
+		difference := time.Since(*p.timeStart).Round(time.Second)
+		result = fmt.Sprintf("%s [%s%s] (%d/%d) [%s]\n", description, str1, str2, carrent, max, difference.String())
+	}
 
 	return result
 }

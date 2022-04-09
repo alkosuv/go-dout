@@ -31,6 +31,7 @@ type View interface {
 	NewLine() *Line
 	NewTitle(format string, a ...any)
 	NewProgressBar(countLineProcess int) *ProgressBar
+	NewProgressBarWithTime(countLineProcess int) *ProgressBar
 	Print(a ...any)
 	Printf(format string, a ...any)
 	Println(a ...any)
@@ -101,6 +102,19 @@ func (v *view) NewProgressBar(countLineProcess int) *ProgressBar {
 	countLineProcess = int(math.Abs(float64(countLineProcess)))
 
 	pb := newProgressBar(countLineProcess)
+	v.lines = append(v.lines, pb)
+
+	return pb
+}
+
+// NewProgressBarWithTime create new ProgressBar with view time work. Negative countLineProcess values ​​will be treated as positive.
+func (v *view) NewProgressBarWithTime(countLineProcess int) *ProgressBar {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	countLineProcess = int(math.Abs(float64(countLineProcess)))
+
+	pb := newProgressBarWithTime(countLineProcess)
 	v.lines = append(v.lines, pb)
 
 	return pb

@@ -11,19 +11,21 @@ import (
 	"time"
 )
 
-type any = interface{}
-
 const (
 	refresh = time.Millisecond * 10
 )
 
-var mutex sync.Mutex
-var once sync.Once
-var viewinstans *view
+var (
+	mutex       sync.Mutex
+	once        sync.Once
+	viewinstans *view
+)
 
 type get interface {
 	Get() string
 }
+
+type any = interface{}
 
 type View interface {
 	NewLine() *Line

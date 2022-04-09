@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+type any = interface{}
+
 const (
 	refresh = time.Millisecond * 10
 )
@@ -24,11 +26,11 @@ type get interface {
 
 type View interface {
 	NewLine() *Line
-	NewTitle(format string, a ...interface{})
+	NewTitle(format string, a ...any)
 	NewProgressBar(countLineProcess int) *ProgressBar
-	Print(str string)
-	Printf(format string, a ...interface{})
-	Println(str string)
+	Print(a ...any)
+	Printf(format string, a ...any)
+	Println(a ...any)
 	ResetView()
 	ClearTerminal()
 }
@@ -76,7 +78,7 @@ func (v *view) NewLine() *Line {
 }
 
 // NewTitle create new Title
-func (v *view) NewTitle(format string, a ...interface{}) {
+func (v *view) NewTitle(format string, a ...any) {
 	mutex.Lock()
 
 	l := newLine()
@@ -104,18 +106,18 @@ func (v *view) NewProgressBar(countLineProcess int) *ProgressBar {
 }
 
 // Print formats using the default formats for its operands and writes to standard output.
-func (v *view) Print(str string) {
-	v.NewLine().Set(str)
+func (v *view) Print(a ...any) {
+	v.NewLine().Set(fmt.Sprint(a...))
 }
 
 // Print formats according to a format specifier and writes to standard output.
-func (v *view) Printf(format string, a ...interface{}) {
+func (v *view) Printf(format string, a ...any) {
 	v.NewLine().Set(format, a...)
 }
 
 // Println formats using the default formats for its operands and writes to standard outpu and newline is appended.
-func (v *view) Println(str string) {
-	v.NewLine().Set(str + "\n")
+func (v *view) Println(a ...any) {
+	v.NewLine().Set(fmt.Sprintln(a...))
 }
 
 // ClearTerminal clears all information from the terminal

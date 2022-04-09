@@ -14,7 +14,7 @@ func newLine() *Line {
 }
 
 // Set formats according to a format specifier and writes to standard output.
-func (l *Line) Set(format string, a ...interface{}) {
+func (l *Line) Set(format string, a ...any) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
